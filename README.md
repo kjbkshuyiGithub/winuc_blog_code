@@ -40,7 +40,7 @@
 
 ```bash
 git clone https://github.com/kjbkshuyigithub/winuc_blog_code.git
-cd team-blog
+cd winuc_blog_code
 ```
 
 2. 安装依赖
@@ -133,4 +133,6 @@ yarn start
 
 ## 许可证
 
-MIT 
+Apache License 2.0
+
+## ⚠️ 目前项目并没有完成，有大BUG，请不要使用！
