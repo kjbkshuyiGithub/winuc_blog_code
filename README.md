@@ -39,7 +39,7 @@
 1. 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/team-blog.git
+git clone https://github.com/kjbkshuyigithub/winuc_blog_code.git
 cd team-blog
 ```
 
