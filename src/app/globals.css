@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  min-height: 100vh;
+}
+
+@layer base {
+  h1 {
+    @apply text-3xl font-bold;
+  }
+  h2 {
+    @apply text-2xl font-bold;
+  }
+  h3 {
+    @apply text-xl font-bold;
+  }
+  a {
+    @apply text-primary-600 dark:text-primary-400 hover:underline;
+  }
+  
+  /* 代码块样式 */
+  pre {
+    @apply p-4 my-4 overflow-x-auto rounded-lg bg-gray-100 dark:bg-gray-800;
+  }
+  
+  code {
+    @apply font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded;
+  }
+  
+  pre code {
+    @apply bg-transparent p-0 text-gray-800 dark:text-gray-200;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md transition-colors;
+  }
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-md transition-colors;
+  }
+  
+  /* 代码高亮样式 */
+  .code-block {
+    @apply relative font-mono text-sm rounded-lg overflow-hidden;
+  }
+  
+  .code-block pre {
+    @apply m-0;
+  }
+  
+  .code-block .language-tag {
+    @apply absolute top-2 right-2 text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300;
+  }
+
+  /* 代码语言特定高亮 */
+  .language-js .token.keyword,
+  .language-jsx .token.keyword,
+  .language-ts .token.keyword,
+  .language-tsx .token.keyword {
+    @apply text-purple-600 dark:text-purple-400;
+  }
+
+  .language-js .token.string,
+  .language-jsx .token.string,
+  .language-ts .token.string,
+  .language-tsx .token.string {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .language-js .token.comment,
+  .language-jsx .token.comment,
+  .language-ts .token.comment,
+  .language-tsx .token.comment {
+    @apply text-gray-500 dark:text-gray-400 italic;
+  }
+
+  .language-js .token.function,
+  .language-jsx .token.function,
+  .language-ts .token.function,
+  .language-tsx .token.function {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+
+  .language-js .token.number,
+  .language-jsx .token.number,
+  .language-ts .token.number,
+  .language-tsx .token.number {
+    @apply text-orange-600 dark:text-orange-400;
+  }
+
+  .language-css .token.property,
+  .language-css .token.selector {
+    @apply text-purple-600 dark:text-purple-400;
+  }
+
+  .language-css .token.value {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+
+  .language-html .token.tag,
+  .language-jsx .token.tag,
+  .language-tsx .token.tag {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  .language-html .token.attr-name,
+  .language-jsx .token.attr-name,
+  .language-tsx .token.attr-name {
+    @apply text-yellow-600 dark:text-yellow-400;
+  }
+
+  .language-html .token.attr-value,
+  .language-jsx .token.attr-value,
+  .language-tsx .token.attr-value {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .language-python .token.keyword {
+    @apply text-purple-600 dark:text-purple-400;
+  }
+
+  .language-python .token.string {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .language-python .token.function {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+
+  .language-python .token.comment {
+    @apply text-gray-500 dark:text-gray-400 italic;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+} 
