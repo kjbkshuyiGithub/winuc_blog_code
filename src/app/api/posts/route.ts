@@ -41,8 +41,6 @@ export async function GET(request: NextRequest) {
     // 只返回已发布的文章，除非指定了userId
     if (userId) {
       whereClause.authorId = userId;
-    } else {
-      whereClause.published = true;
     }
     
     if (category) {

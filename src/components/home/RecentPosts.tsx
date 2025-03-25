@@ -52,7 +52,11 @@ export function RecentPosts() {
         }
         
         const data = await response.json();
-        setPosts(data.posts);
+        // 添加数据验证，确保文章数据完整
+        const validPosts = data.posts.filter((post: any) => 
+          post && post.id && post.title && post.slug
+        );
+        setPosts(validPosts);
       } catch (err) {
         console.error('获取最近文章时出错:', err);
         setError('获取文章失败，请稍后重试');

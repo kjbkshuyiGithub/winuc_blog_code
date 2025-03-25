@@ -51,7 +51,11 @@ interface Comment {
   replies?: Comment[];
 }
 
-export default function BlogComments() {
+interface BlogCommentsProps {
+  postId: string;
+}
+
+export default function BlogComments({ postId }: BlogCommentsProps) {
   const { data: session } = useSession();
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState('');
