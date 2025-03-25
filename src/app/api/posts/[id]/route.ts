@@ -25,6 +25,7 @@ export async function PUT(
 ) {
   try {
     const id = params.id;
+    console.log('正在处理文章更新请求，文章ID:', id);
 
     // 验证用户会话
     const session = await getServerSession(authOptions);
@@ -61,9 +62,9 @@ export async function PUT(
     // 处理表单数据
     const formData = await request.formData();
     
-    // 提取基础字段
+    // 提取基础字段 - 使用URL参数中的ID，不再从表单中获取
     const postData = {
-      id: formData.get('id') as string,
+      id: id, // 直接使用URL参数中的ID
       title: formData.get('title') as string,
       content: formData.get('content') as string,
       description: (formData.get('description') as string) || undefined,
@@ -73,7 +74,7 @@ export async function PUT(
     };
 
     console.log('更新文章数据:', { 
-      id: postData.id,
+      id: postData.id, // 应该与URL参数中的ID相同
       title: postData.title, 
       authorId: existingPost.authorId,
       published: postData.published,

@@ -64,17 +64,9 @@ export default function PostEditor({ categories, tags, userId, post }: PostEdito
     text: string;
   } | null>(null);
   
-  // 验证userId是否存在
+  // 仅记录用户ID，不阻止操作
   useEffect(() => {
-    if (!userId) {
-      console.error('用户ID无效:', userId);
-      setStatusMessage({
-        type: 'error',
-        text: '用户ID无效，无法继续。请刷新页面或重新登录后再试。'
-      });
-    } else {
-      console.log('有效的用户ID:', userId);
-    }
+    console.log('当前用户ID:', userId);
   }, [userId]);
   
   const {
@@ -137,92 +129,75 @@ export default function PostEditor({ categories, tags, userId, post }: PostEdito
       + '-' + Date.now().toString().slice(-6); // 添加时间戳后6位，确保唯一性
   };
   
-  // 表单提交
-  const onSubmit = async (data: PostFormData) => {
-    // 再次检查userId是否有效
-    if (!userId) {
-      setStatusMessage({
-        type: 'error',
-        text: '用户ID无效，无法提交表单。请刷新页面或重新登录后再试。'
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setStatusMessage(null);
-    
+  // 处理表单提交
+  const onSubmit = async (formData: PostFormData) => {
     try {
-      console.log('开始提交表单，用户ID:', userId);
+      setIsSubmitting(true);
+      setStatusMessage(null);
+
+      // 创建FormData对象
+      const formPayload = new FormData();
+      formPayload.append("title", formData.title);
+      formPayload.append("content", formData.content);
+      formPayload.append("description", formData.description || "");
+      formPayload.append("slug", post?.id ? post.slug : generateSlug(formData.title));
+      formPayload.append("published", formData.published.toString());
       
-      // 创建表单数据对象
-      const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('content', data.content);
-      formData.append('description', data.description || '');
-      formData.append('categoryId', data.categoryId || '');
-      formData.append('published', data.published.toString());
-      // 这个字段在后端被忽略，但仍然保留以保持兼容性
-      formData.append('authorId', userId);
-      
-      // 如果是编辑现有文章
-      if (post?.id) {
-        formData.append('id', post.id);
-        formData.append('slug', post.slug);
-      } else {
-        // 新文章，生成 slug
-        formData.append('slug', generateSlug(data.title));
+      if (formData.categoryId) {
+        formPayload.append("categoryId", formData.categoryId);
       }
       
-      // 添加选中的标签
+      // 附加标签
       selectedTags.forEach(tagId => {
-        formData.append('tags[]', tagId);
+        formPayload.append("tags[]", tagId);
       });
       
-      // 如果有封面图片
+      // 处理封面图片
       if (coverImage) {
-        formData.append('coverImage', coverImage);
+        formPayload.append("coverImage", coverImage);
       } else if (coverImagePreview === null && post?.coverImage) {
         // 如果清除了封面图片
-        formData.append('removeCoverImage', 'true');
+        formPayload.append('removeCoverImage', 'true');
       }
       
-      // 提交到API
-      const url = post?.id 
-        ? `/api/posts/${post.id}` 
-        : '/api/posts';
+      // 定义请求URL和方法 - 注意：ID在URL中，不需要在formData中传递
+      const url = post?.id ? `/api/posts/${post.id}` : "/api/posts";
+      const method = post?.id ? "PUT" : "POST";
       
-      console.log('提交请求到:', url);
+      console.log(`发送${method}请求到: ${url}`);
+      
+      // 发送请求
       const response = await fetch(url, {
-        method: post?.id ? 'PUT' : 'POST',
-        body: formData,
+        method: method,
+        body: formPayload,
       });
+
+      // 处理响应
+      const responseData = await response.json();
       
       if (!response.ok) {
-        const result = await response.json();
-        console.error('响应错误:', result);
-        throw new Error(result.message || '保存文章时发生错误');
+        throw new Error(responseData.message || "保存文章时出现错误");
       }
       
-      const result = await response.json();
-      console.log('响应成功:', result);
-      
+      // 成功后设置状态
       setStatusMessage({
         type: 'success',
         text: post?.id ? '文章已成功更新' : '文章已成功创建'
       });
       
-      // 如果是新文章，跳转到编辑页面
-      if (!post?.id) {
-        router.push(`/dashboard/posts/${result.post.id}/edit`);
+      // 如果是新文章，重定向到编辑页面
+      if (!post?.id && responseData.post) {
+        router.push(`/dashboard/posts/${responseData.post.id}/edit`);
+      } else {
+        // 刷新页面以显示最新内容
+        router.refresh();
       }
       
-      // 刷新页面
-      router.refresh();
     } catch (error) {
-      console.error('保存文章时出错:', error);
+      console.error("提交文章时出错:", error);
       setStatusMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : '保存文章时出错，请稍后重试'
+        text: `保存失败: ${error instanceof Error ? error.message : "未知错误"}`
       });
     } finally {
       setIsSubmitting(false);

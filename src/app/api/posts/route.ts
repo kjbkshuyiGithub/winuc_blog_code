@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
@@ -110,121 +110,163 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. 验证用户会话
+    // 1. 获取用户会话
+    console.log("开始处理文章创建请求");
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      console.error('未授权: 用户未登录');
+    
+    if (!session || !session.user) {
+      console.error('未授权: 用户未登录', session);
       return NextResponse.json(
-        { message: '未授权，请先登录' },
+        { message: '请先登录后再发布文章' },
         { status: 401 }
       );
     }
     
-    const sessionUserId = session.user.id;
-    if (!sessionUserId) {
-      console.error('未授权: 会话中没有有效的用户ID');
+    // 2. 获取用户ID
+    const userId = session.user.id;
+    if (!userId) {
+      console.error('会话中没有用户ID:', session);
+      // 不再立即返回错误，尝试使用用户名查找用户
+      if (session.user.email) {
+        console.log(`尝试通过邮箱 ${session.user.email} 查找用户`);
+        const userByEmail = await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true, name: true, role: true }
+        });
+        
+        if (userByEmail) {
+          console.log(`通过邮箱找到用户，ID: ${userByEmail.id}`);
+          // 使用找到的用户ID继续处理请求
+          const formData = await request.formData();
+          return await processPostCreation(formData, userByEmail, session);
+        }
+      }
+      
       return NextResponse.json(
-        { message: '无法获取用户信息' },
+        { message: '无法获取用户身份信息，请重新登录' },
         { status: 400 }
       );
     }
     
-    console.log('API POST - 会话用户ID:', sessionUserId);
+    console.log(`正在创建文章，用户ID: ${userId}, 用户: ${session.user.name || 'unknown'}`);
     
-    // 2. 处理表单数据
-    const formData = await request.formData();
-    
-    const postData = {
-      title: formData.get('title') as string,
-      content: formData.get('content') as string,
-      description: (formData.get('description') as string) || undefined,
-      categoryId: (formData.get('categoryId') as string) || undefined,
-      published: formData.get('published') as string,
-      slug: formData.get('slug') as string,
-    };
-    
-    console.log('创建文章数据:', { 
-      title: postData.title, 
-      authorId: sessionUserId,
-      published: postData.published,
-      slug: postData.slug
-    });
-    
-    // 3. 验证数据
-    const validationResult = postSchema.safeParse(postData);
-    if (!validationResult.success) {
-      const errors = validationResult.error.flatten();
-      console.error('数据验证失败:', errors);
-      return NextResponse.json(
-        { message: '数据验证失败', errors },
-        { status: 400 }
-      );
-    }
-    
-    // 4. 验证用户
+    // 3. 验证用户存在
     const user = await prisma.user.findUnique({
-      where: { id: sessionUserId },
+      where: { id: userId },
+      select: { id: true, name: true, role: true }
     });
     
     if (!user) {
-      console.error('找不到有效用户:', sessionUserId);
+      console.error(`找不到ID为 ${userId} 的用户，尝试使用会话信息`);
+      // 尝试通过邮箱查找用户
+      if (session.user.email) {
+        const userByEmail = await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true, name: true, role: true }
+        });
+        
+        if (userByEmail) {
+          console.log(`通过邮箱找到用户，ID: ${userByEmail.id}`);
+          // 使用找到的用户ID继续处理请求
+          const formData = await request.formData();
+          return await processPostCreation(formData, userByEmail, session);
+        }
+      }
+      
       return NextResponse.json(
-        { message: '找不到有效用户' },
-        { status: 400 }
+        { message: '用户账户不存在或已被删除' },
+        { status: 404 }
       );
     }
     
-    // 5. 验证标签
-    const tagIds = formData.getAll('tags[]') as string[];
-    console.log('标签IDs:', tagIds);
+    console.log("已找到有效用户:", user);
     
-    // 6. 提取封面图片 (处理上传的文件将在后续实现)
-    const coverImage = formData.get('coverImage') as File | null;
+    // 4. 处理表单数据
+    const formData = await request.formData();
+    return await processPostCreation(formData, user, session);
     
-    // 7. 创建文章
-    const createdPost = await prisma.post.create({
-      data: {
-        title: postData.title,
-        content: postData.content,
-        description: postData.description ? postData.description : null,
-        categoryId: postData.categoryId ? postData.categoryId : null,
-        published: validationResult.data.published,
-        slug: postData.slug,
-        authorId: sessionUserId, // 直接设置authorId
-        tags: {
-          connect: tagIds.map(id => ({ id })),
-        },
-        // 封面图片处理将在后续实现
-      },
-      include: {
-        category: true,
-        tags: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-      },
-    });
-    
-    console.log('文章创建成功:', createdPost.id);
-    
-    // 8. 重新验证页面
-    revalidatePath('/blog');
-    revalidatePath(`/blog/${createdPost.slug}`);
-    revalidatePath('/dashboard/posts');
-    
-    return NextResponse.json(
-      { message: '文章创建成功', post: createdPost },
-      { status: 201 }
-    );
   } catch (error) {
     console.error('创建文章失败:', error);
     return NextResponse.json(
-      { message: '创建文章失败', error: (error as Error).message },
+      { message: '创建文章时出现系统错误', error: (error as Error).message },
       { status: 500 }
     );
   }
+}
+
+// 提取文章创建逻辑为单独的函数
+async function processPostCreation(
+  formData: FormData, 
+  user: { id: string, name: string | null, role: string | any },
+  session: any
+) {
+  const postData = {
+    title: formData.get('title') as string,
+    content: formData.get('content') as string,
+    description: (formData.get('description') as string) || undefined,
+    categoryId: (formData.get('categoryId') as string) || undefined,
+    published: formData.get('published') as string,
+    slug: formData.get('slug') as string,
+  };
+  
+  console.log('文章数据:', {
+    title: postData.title,
+    userId: user.id,
+    userName: user.name || 'unnamed',
+    published: postData.published,
+  });
+  
+  // 5. 验证数据
+  const validationResult = postSchema.safeParse(postData);
+  if (!validationResult.success) {
+    const errors = validationResult.error.flatten();
+    console.error('数据验证失败:', errors);
+    return NextResponse.json(
+      { message: '提交的文章数据无效', errors },
+      { status: 400 }
+    );
+  }
+  
+  // 6. 获取标签
+  const tagIds = formData.getAll('tags[]') as string[];
+  console.log('标签IDs:', tagIds);
+  
+  // 7. 创建文章
+  const post = await prisma.post.create({
+    data: {
+      title: postData.title,
+      content: postData.content,
+      description: postData.description || "",
+      categoryId: postData.categoryId || null,
+      published: validationResult.data.published,
+      slug: postData.slug,
+      authorId: user.id, // 使用验证过的用户ID
+      tags: tagIds.length > 0 ? {
+        connect: tagIds.map(id => ({ id }))
+      } : undefined,
+    },
+    include: {
+      category: true,
+      tags: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+    },
+  });
+  
+  console.log('文章创建成功:', post.id);
+  
+  // 8. 重新验证页面
+  revalidatePath('/blog');
+  revalidatePath(`/blog/${post.slug}`);
+  revalidatePath('/dashboard/posts');
+  
+  return NextResponse.json(
+    { message: '文章创建成功', post },
+    { status: 201 }
+  );
 }
