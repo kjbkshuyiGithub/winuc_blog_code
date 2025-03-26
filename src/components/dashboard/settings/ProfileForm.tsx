@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FiUser, FiMail, FiInfo, FiUpload, FiSave, FiX } from 'react-icons/fi';
+import { Avatar } from '@/components/Avatar';
 
 // 表单验证schema
 const profileSchema = z.object({
@@ -148,41 +149,36 @@ export default function ProfileForm() {
         </label>
         
         <div className="flex items-center space-x-4">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center relative">
-            {avatarPreview ? (
-              <img
-                src={avatarPreview}
-                alt="头像预览"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <FiUser className="w-8 h-8 text-gray-400" />
-            )}
+          <div className="w-24 h-24 rounded-full overflow-hidden">
+            <Avatar
+              src={avatarPreview}
+              name={session?.user?.name || ''}
+              alt="头像预览"
+              size="xl"
+            />
           </div>
           
-          <div className="flex flex-col space-y-2">
-            <label className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-              <FiUpload className="mr-2" />
-              <span>上传新头像</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={handleAvatarChange}
-              />
-            </label>
-            
-            {avatarPreview && (
-              <button
-                type="button"
-                onClick={handleClearAvatar}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <FiX className="mr-2" />
-                移除头像
-              </button>
-            )}
-          </div>
+          <label className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+            <FiUpload className="mr-2" />
+            <span>上传新头像</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={handleAvatarChange}
+            />
+          </label>
+          
+          {avatarPreview && (
+            <button
+              type="button"
+              onClick={handleClearAvatar}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <FiX className="mr-2" />
+              移除头像
+            </button>
+          )}
         </div>
       </div>
       

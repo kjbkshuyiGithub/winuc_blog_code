@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FiClock, FiTag } from 'react-icons/fi';
 import { format } from 'date-fns';
+import { Avatar } from '@/components/Avatar';
 
 // 文章类型定义
 interface Post {
@@ -148,17 +149,12 @@ export function FeaturedPosts() {
               </p>
               
               <div className="mt-6 flex items-center">
-                {post.author.image ? (
-                  <img 
-                    src={post.author.image}
-                    alt={post.author.name || '作者'}
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600">
-                    {/* 作者头像占位符 */}
-                  </div>
-                )}
+                <Avatar 
+                  src={post.author.image}
+                  name={post.author.name}
+                  alt={post.author.name || '作者'}
+                  size="sm"
+                />
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {post.author.name || '匿名作者'}

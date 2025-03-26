@@ -154,4 +154,85 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Markdown 样式 */
+.markdown-body {
+  @apply text-gray-800 dark:text-gray-200 break-words;
+}
+
+.markdown-body h1 {
+  @apply text-3xl font-bold mt-8 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700;
+}
+
+.markdown-body h2 {
+  @apply text-2xl font-bold mt-6 mb-3;
+}
+
+.markdown-body h3 {
+  @apply text-xl font-bold mt-5 mb-2;
+}
+
+.markdown-body h4 {
+  @apply text-lg font-bold mt-4 mb-2;
+}
+
+.markdown-body h5, .markdown-body h6 {
+  @apply font-bold mt-3 mb-1;
+}
+
+.markdown-body p {
+  @apply my-4;
+}
+
+.markdown-body ul, .markdown-body ol {
+  @apply my-4 ml-5;
+}
+
+.markdown-body ul {
+  @apply list-disc;
+}
+
+.markdown-body ol {
+  @apply list-decimal;
+}
+
+.markdown-body li {
+  @apply mb-1;
+}
+
+.markdown-body blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-1 my-4 text-gray-600 dark:text-gray-400 italic;
+}
+
+.markdown-body table {
+  @apply w-full my-6 border-collapse;
+}
+
+.markdown-body table th {
+  @apply bg-gray-100 dark:bg-gray-800 p-2 text-left font-bold border border-gray-300 dark:border-gray-700;
+}
+
+.markdown-body table td {
+  @apply p-2 border border-gray-300 dark:border-gray-700;
+}
+
+.markdown-body hr {
+  @apply my-6 border-t border-gray-300 dark:border-gray-700;
+}
+
+.markdown-body pre {
+  @apply my-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-md overflow-auto;
+}
+
+.markdown-body code {
+  @apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.markdown-body a:not(.anchor) {
+  @apply text-primary-600 dark:text-primary-400 hover:underline;
+}
+
+.markdown-body img {
+  @apply max-w-full h-auto my-6 rounded-md;
 } 

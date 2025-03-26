@@ -9,6 +9,8 @@ import { format } from 'date-fns';
 import BlogComments from '../../../components/blog/BlogComments';
 import BlogRelatedPosts from '../../../components/blog/BlogRelatedPosts';
 import BlogShareButtons from '../../../components/blog/BlogShareButtons';
+import { MarkdownContent } from '@/components/blog/MarkdownContent';
+import { Avatar } from '@/components/Avatar';
 
 // 从数据库获取博客文章
 async function getBlogPost(slug: string) {
@@ -144,9 +146,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         </div>
       )}
       
-      {/* 文章内容 */}
+      {/* 文章内容 - 使用Markdown渲染 */}
       <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
-        <div dangerouslySetInnerHTML={{ __html: post.content || '' }} />
+        <MarkdownContent content={post.content} />
       </div>
       
       {/* 标签 */}
@@ -170,15 +172,14 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       {post.author && (
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 mb-8">
           <div className="flex items-center">
-            {post.author.image && (
-              <div className="flex-shrink-0 mr-4">
-                <img
-                  src={post.author.image}
-                  alt={post.author.name || '作者头像'}
-                  className="h-12 w-12 rounded-full object-cover"
-                />
-              </div>
-            )}
+            <div className="flex-shrink-0 mr-4">
+              <Avatar 
+                src={post.author.image}
+                name={post.author.name}
+                alt={post.author.name || '作者头像'}
+                size="lg"
+              />
+            </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                 {post.author.name || '匿名作者'}

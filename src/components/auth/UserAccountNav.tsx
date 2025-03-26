@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiSettings, FiFileText, FiLogOut, FiChevronDown } from 'react-icons/fi';
+import { FiUser, FiSettings, FiFileText, FiLogOut, FiChevronDown, FiMoon, FiSun, FiGlobe } from 'react-icons/fi';
+import { useTheme } from 'next-themes';
+import { Avatar } from '@/components/Avatar';
 
 export default function UserAccountNav() {
   const { data: session } = useSession();
@@ -45,17 +47,12 @@ export default function UserAccountNav() {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-          {session.user.image ? (
-            <img
-              src={session.user.image}
-              alt={session.user.name || '用户头像'}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <FiUser className="text-gray-600 dark:text-gray-400" />
-          )}
-        </div>
+        <Avatar
+          src={session.user.image}
+          name={session.user.name}
+          alt={session.user.name || '用户头像'}
+          size="sm"
+        />
         <span className="text-gray-700 dark:text-gray-300 hidden sm:inline-block">
           {session.user.name || '用户'}
         </span>

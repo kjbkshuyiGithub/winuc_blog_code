@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { FiCalendar, FiUser, FiTag, FiMessageSquare, FiEye } from 'react-icons/fi';
 import { format } from 'date-fns';
 import BlogPagination from './BlogPagination';
+import { Avatar } from '@/components/Avatar';
 
 // 文章类型定义
 interface Post {
@@ -159,10 +160,15 @@ export default function BlogList({ category, tag, searchTerm }: BlogListProps) {
                   <FiCalendar className="mr-1 h-3 w-3" />
                   {format(new Date(post.createdAt), 'yyyy-MM-dd')}
                 </span>
-                <span className="flex items-center">
-                  <FiUser className="mr-1 h-3 w-3" />
-                  {post.author?.name || '匿名用户'}
-                </span>
+                <div className="flex items-center">
+                  <Avatar
+                    src={post.author?.image}
+                    name={post.author?.name || '匿名用户'}
+                    alt={post.author?.name || '匿名用户'}
+                    size="sm"
+                  />
+                  <span className="ml-1">{post.author?.name || '匿名用户'}</span>
+                </div>
                 {post.category && (
                   <span className="flex items-center">
                     <FiTag className="mr-1 h-3 w-3" />

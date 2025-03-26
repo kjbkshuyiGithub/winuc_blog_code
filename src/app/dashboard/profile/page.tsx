@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 import { FiEdit2, FiUser, FiMail, FiInfo, FiCalendar, FiEye, FiMessageSquare, FiHeart } from 'react-icons/fi';
+import { Avatar } from '@/components/Avatar';
 
 export const metadata: Metadata = {
   title: '我的账户资料 - 团队博客',
@@ -60,16 +61,13 @@ export default async function ProfilePage() {
           {/* 资料头部 - 带有背景和头像 */}
           <div className="relative h-40 bg-gradient-to-r from-primary-500 to-primary-700">
             <div className="absolute -bottom-12 left-6">
-              <div className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                {session.user.image ? (
-                  <img
-                    src={session.user.image}
-                    alt={session.user.name || '用户头像'}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <FiUser className="w-10 h-10 text-gray-500 dark:text-gray-400" />
-                )}
+              <div className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden">
+                <Avatar
+                  src={session.user.image}
+                  name={session.user.name}
+                  alt={session.user.name || '用户头像'}
+                  size="xl"
+                />
               </div>
             </div>
             <div className="absolute top-4 right-4">

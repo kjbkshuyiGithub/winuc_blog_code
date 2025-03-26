@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FiUser, FiMessageSquare, FiSend, FiThumbsUp, FiThumbsDown, FiFlag } from 'react-icons/fi';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { Avatar } from '@/components/Avatar';
 
 // 模拟评论数据
 const initialComments = [
@@ -70,7 +71,7 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
     const newCommentObj: Comment = {
       id: Date.now(),
       author: session?.user?.name || '访客用户',
-      avatar: session?.user?.image || '/images/avatars/default.jpg',
+      avatar: session?.user?.image || '',
       content: newComment,
       date: new Date().toISOString().split('T')[0],
       likes: 0,
@@ -89,7 +90,7 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
     const newReply: Comment = {
       id: Date.now(),
       author: session?.user?.name || '访客用户',
-      avatar: session?.user?.image || '/images/avatars/default.jpg',
+      avatar: session?.user?.image || '',
       content: replyContent,
       date: new Date().toISOString().split('T')[0],
       likes: 0,
@@ -156,15 +157,12 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
             className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow"
           >
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full overflow-hidden">
-                {comment.avatar && (
-                  <img 
-                    src={comment.avatar} 
-                    alt={`${comment.author}的头像`}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
+              <Avatar
+                src={comment.avatar}
+                name={comment.author}
+                alt={`${comment.author}的头像`}
+                size="md"
+              />
               
               <div className="flex-1">
                 <div className="flex items-center justify-between">
@@ -209,15 +207,12 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
                 {replyingTo === comment.id && (
                   <div className="mt-4">
                     <div className="flex items-start space-x-2">
-                      <div className="flex-shrink-0 w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full overflow-hidden">
-                        {session?.user?.image && (
-                          <img 
-                            src={session.user.image} 
-                            alt="用户头像"
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </div>
+                      <Avatar
+                        src={session?.user?.image}
+                        name={session?.user?.name || ''}
+                        alt="用户头像"
+                        size="sm"
+                      />
                       <div className="flex-1">
                         <textarea
                           value={replyContent}
@@ -244,15 +239,12 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
                   <div className="mt-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700 space-y-4">
                     {comment.replies.map((reply) => (
                       <div key={reply.id} className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full overflow-hidden">
-                          {reply.avatar && (
-                            <img 
-                              src={reply.avatar} 
-                              alt={`${reply.author}的头像`}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
-                        </div>
+                        <Avatar
+                          src={reply.avatar}
+                          name={reply.author}
+                          alt={`${reply.author}的头像`}
+                          size="sm"
+                        />
                         
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
@@ -317,17 +309,13 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
             
             <div className="flex justify-between items-center">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center overflow-hidden mr-2">
-                  {session.user?.image ? (
-                    <img
-                      src={session.user.image}
-                      alt={session.user.name || '用户头像'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <FiUser className="text-gray-600 dark:text-gray-400" />
-                  )}
-                </div>
+                <Avatar
+                  src={session.user?.image}
+                  name={session.user?.name || '用户'}
+                  alt={session.user?.name || '用户头像'}
+                  size="sm"
+                  className="mr-2"
+                />
                 <span>评论者: {session.user?.name || '用户'}</span>
               </div>
               
