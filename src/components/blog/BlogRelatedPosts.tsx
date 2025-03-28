@@ -36,11 +36,14 @@ export default function BlogRelatedPosts({
 }: BlogRelatedPostsProps) {
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // 获取相关文章
   useEffect(() => {
     const fetchRelatedPosts = async () => {
       try {
+        setIsLoading(true);
+        
         // 构建查询参数
         const params = new URLSearchParams();
         params.append('exclude', currentPostId);
@@ -51,18 +54,18 @@ export default function BlogRelatedPosts({
         }
         params.append('limit', '3'); // 最多显示3篇相关文章
         
-        // 模拟从API获取数据
-        // 实际应用中应该通过API获取
-        // const response = await fetch(`/api/posts/related?${params.toString()}`);
-        // if (response.ok) {
-        //   const data = await response.json();
-        //   setRelatedPosts(data.posts);
-        // }
+        // 从API获取数据
+        const response = await fetch(`/api/posts/related?${params.toString()}`);
         
-        // 使用模拟数据
-        setRelatedPosts(defaultRelatedPosts);
+        if (!response.ok) {
+          throw new Error('获取相关文章失败');
+        }
+        
+        const data = await response.json();
+        setRelatedPosts(data.posts || []);
       } catch (error) {
         console.error('获取相关文章失败:', error);
+        setError('获取相关文章时出错，请稍后重试');
       } finally {
         setIsLoading(false);
       }
@@ -87,6 +90,19 @@ export default function BlogRelatedPosts({
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          相关文章
+        </h3>
+        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-red-800 dark:text-red-200">
+          {error}
         </div>
       </div>
     );
@@ -154,44 +170,4 @@ export default function BlogRelatedPosts({
       </div>
     </div>
   );
-}
-
-// 默认相关文章数据（用于模拟）
-const defaultRelatedPosts: RelatedPost[] = [
-  {
-    id: '1',
-    title: 'React 18中的新Suspense特性详解',
-    description: '探索React 18中Suspense的改进和新功能，以及如何利用它们提升应用性能。',
-    coverImage: '/images/blog/react-suspense.jpg',
-    slug: 'react-18-suspense-features',
-    category: {
-      id: '1',
-      name: '前端开发',
-      slug: 'frontend'
-    }
-  },
-  {
-    id: '2',
-    title: '使用React Query优化数据获取',
-    description: '学习如何使用React Query库简化数据获取、缓存和状态管理。',
-    coverImage: '/images/blog/react-query.jpg',
-    slug: 'optimize-data-fetching-with-react-query',
-    category: {
-      id: '1',
-      name: '前端开发',
-      slug: 'frontend'
-    }
-  },
-  {
-    id: '3',
-    title: 'Next.js 13的App Router详解',
-    description: '深入了解Next.js 13的新路由系统，以及它如何改变React应用的构建方式。',
-    coverImage: '/images/blog/nextjs-app-router.jpg',
-    slug: 'nextjs-13-app-router-explained',
-    category: {
-      id: '1',
-      name: '前端开发',
-      slug: 'frontend'
-    }
-  }
-]; 
+} 
